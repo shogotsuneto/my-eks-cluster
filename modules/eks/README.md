@@ -2,16 +2,16 @@
 
 ## 手動手順
 
-1. このディレクトリに移動 `cd eks`
+1. プロジェクトルートで `cp .env.example .env` し値を書き入れる
 
-2. `cp .env.example .env` し値を書き入れる
-
-3. docker を立ち上げる
+2. docker を立ち上げる
 
 ```sh
 docker-compose up -d
 docker-compose exec terraform bash
 ```
+
+3. このディレクトリに移動 `cd clusters/develop`
 
 4. apply
 

@@ -7,14 +7,6 @@ terraform {
   }
 
   required_version = ">= 0.14.9"
-
-  backend "s3" {
-    bucket         = "st-tfstate-default"
-    region         = "ap-northeast-1"
-    key            = "GetStarted/terraform.tfstate"
-    encrypt        = true
-    dynamodb_table = "TFStateLock"
-  }
 }
 
 provider "aws" {
