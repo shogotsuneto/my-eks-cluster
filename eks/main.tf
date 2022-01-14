@@ -1,24 +1,33 @@
 terraform {
   required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 2.13.0"
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.27"
     }
+  }
+
+  required_version = ">= 0.14.9"
+
+  backend "s3" {
+    bucket         = "st-tfstate-default"
+    region         = "ap-northeast-1"
+    key            = "GetStarted/terraform.tfstate"
+    encrypt        = true
+    dynamodb_table = "TFStateLock"
   }
 }
 
-provider "docker" {}
-
-resource "docker_image" "nginx" {
-  name         = "nginx:latest"
-  keep_locally = false
+provider "aws" {
+  profile = "default"
+  region  = "ap-northeast-1"
 }
 
-resource "docker_container" "nginx" {
-  image = docker_image.nginx.latest
-  name  = "tutorial"
-  ports {
-    internal = 80
-    external = 8000
+resource "aws_instance" "app_server" {
+  ami = "ami-088da9557aae42f39" # ubuntu
+  # ami           = "ami-032d6db78f84e8bf5" # amazon linux
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = var.instance_name
   }
 }

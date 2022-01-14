@@ -1,0 +1,37 @@
+# EKS Cluster
+
+## 手動手順
+
+1. このディレクトリに移動 `cd eks`
+
+2. `cp .env.example .env` し値を書き入れる
+
+3. docker を立ち上げる
+
+```sh
+docker-compose up -d
+docker-compose exec terraform bash
+```
+
+4. apply
+
+```sh
+# in the terraform container
+terraform init
+terraform plan -var-file dev.tfvars
+terraform apply -var-file dev.tfvars
+```
+
+5. inspect
+
+```sh
+terraform show
+terraform output
+terraform console
+```
+
+6. destroy
+
+```sh
+terraform destroy
+```
