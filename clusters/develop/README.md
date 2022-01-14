@@ -18,8 +18,8 @@ docker-compose exec terraform bash
 ```sh
 # in the terraform container
 terraform init
-terraform plan -var-file dev.tfvars
-terraform apply -var-file dev.tfvars
+terraform plan
+terraform apply
 ```
 
 5. inspect
