@@ -37,9 +37,10 @@ EKS クラスターのリソース管理には Terraform,
 - ArgoCD
   - [Get Started](https://argo-cd.readthedocs.io/en/stable/getting_started/)
   - [Declarative Setup](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/)
-- Flux
+- Flux 2
   - [Get Started](https://fluxcd.io/docs/get-started/)
   - [Terraform provider flux](https://github.com/fluxcd/terraform-provider-flux)
+  - [Multi Tenancy](https://github.com/fluxcd/flux2-multi-tenancy)
 
 ### style and conventions
 
