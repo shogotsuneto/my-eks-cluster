@@ -1,6 +1,10 @@
-# My Cluster Bootstrap
+# My EKS Cluster
 
+自分用あんちょこ（Cheat Sheet）的リポジトリ。
 コントロールプレーン寄りの構成管理。
+
+EKS クラスターのリソース管理には Terraform,
+その他 k8s 内リソース管理には k8s manifest ファイルを利用（予定）。
 
 ## TODO
 
@@ -12,9 +16,9 @@
 - Istio
 - データプレーン用の k8s 内リソース（namespace や RBAC 周りなど）
 - Flux2 や ArgoCD
-- 上記を 1 コマンドで apply するスクリプトもしくはパイプライン
-- データプレーン用の Git リポジトリ&アプリケーション
+- 上記を 1,2 ステップで apply するスクリプトもしくはパイプライン
 - データプレーン用の永続化層（k8s 外の s3, RDS, KeySpaces など）
+- データプレーン用の Git リポジトリ&アプリケーション
 
 ## References
 
