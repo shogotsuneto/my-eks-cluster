@@ -10,10 +10,11 @@
 - Prometheus/Grafana
 - Metric Server
 - Istio
-- データプレーン用の一部リソース（namespace や RBAC 周りなど）
+- データプレーン用の k8s 内リソース（namespace や RBAC 周りなど）
 - Flux2 や ArgoCD
 - 上記を 1 コマンドで apply するスクリプトもしくはパイプライン
 - データプレーン用の Git リポジトリ&アプリケーション
+- データプレーン用の永続化層（k8s 外の s3, RDS, KeySpaces など）
 
 ## References
 
