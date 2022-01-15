@@ -13,5 +13,5 @@ terraform {
 module "eks" {
   source = "../../modules/eks"
 
-  instance_name = "ModularizedInstance"
+  instance_name = "PullRequestTestV2"
 }
