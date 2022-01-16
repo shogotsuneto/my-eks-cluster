@@ -32,11 +32,8 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  eks_managed_node_group_defaults = {
-    disk_size      = 50
-    instance_types = ["r5.large", "r5n.large", "r4.large"]
-    capacity_type  = "SPOT"
-  }
+  eks_managed_node_group_defaults = var.eks_managed_node_group_defaults
+  eks_managed_node_groups         = var.eks_managed_node_groups
 }
 
 module "vpc" {
