@@ -13,7 +13,7 @@ terraform {
 module "eks" {
   source = "../../modules/eks"
 
-  create                                = true
+  create                                = false
   cluster_name                          = "MyFirstCluster"
   cluster_additional_security_group_ids = []
   cluster_endpoint_public_access_cidrs  = ["0.0.0.0/0"]

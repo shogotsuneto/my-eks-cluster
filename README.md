@@ -9,10 +9,10 @@ EKS クラスターのリソース管理には Terraform,
 ## Bootstrap 手順
 
 - Terraform 用の Backend 作成
-- デプロイ用の [IAM Role 作成](./doc/IAM_role.md)
+- デプロイ用の [IAM Role 作成](./docs/IAM_role.md)
 - GitHub Actions 用のシークレット作成（IAM ロール ARN、パーソナルアクセストークン）
 - main に変更を PR&マージして GitHub Actions 起動（どうしてもというなら手元から terraform apply）
-- [kubeconfig 取得](./doc/iam.md#kubeconfig-取得方法)
+- [kubeconfig 取得](./docs/iam.md#kubeconfig-取得方法)
 - 以下 WIP
 
 ## TODO
