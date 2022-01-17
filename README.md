@@ -6,6 +6,15 @@
 EKS クラスターのリソース管理には Terraform,  
 その他 k8s 内リソース管理には k8s manifest ファイルを利用（予定）。
 
+## Bootstrap 手順
+
+- Terraform 用の Backend 作成
+- デプロイ用の [IAM Role 作成](./doc/IAM_role.md)
+- GitHub Actions 用のシークレット作成（IAM ロール ARN、パーソナルアクセストークン）
+- main に変更を PR&マージして GitHub Actions 起動（どうしてもというなら手元から terraform apply）
+- [kubeconfig 取得](./doc/iam.md#kubeconfig-取得方法)
+- 以下 WIP
+
 ## TODO
 
 - EKS クラスター
