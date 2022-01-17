@@ -37,15 +37,16 @@ module "eks" {
 }
 
 module "vpc" {
+  # https://github.com/terraform-aws-modules/terraform-aws-vpc
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 3.0"
 
   name = "${local.cluster_name}-vpc"
-  cidr = "10.0.0.0/16"
+  cidr = var.vpc_cidr
 
-  azs             = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  azs             = var.vpc_azs
+  private_subnets = var.vpc_private_subnets
+  public_subnets  = var.vpc_public_subnets
 
   enable_nat_gateway = var.create
 
