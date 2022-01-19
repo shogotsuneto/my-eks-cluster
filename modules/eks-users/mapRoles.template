@@ -1,5 +1,0 @@
-- groups:
-  - system:bootstrappers
-  - system:nodes
-  rolearn: ${NODE_IAM_ROLE_ARN}
-  username: system:node:{{EC2PrivateDNSName}}
