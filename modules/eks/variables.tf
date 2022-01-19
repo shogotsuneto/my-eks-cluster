@@ -49,3 +49,8 @@ variable "vpc_single_nat_gateway" {
   type    = bool
   default = true
 }
+
+variable "public_subnets_only" {
+  type    = bool
+  default = false
+}

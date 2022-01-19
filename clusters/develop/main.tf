@@ -13,7 +13,7 @@ terraform {
 module "eks" {
   source = "../../modules/eks"
 
-  create                                = false
+  create                                = true
   cluster_name                          = "MyFirstCluster"
   cluster_additional_security_group_ids = []
   cluster_endpoint_public_access_cidrs  = ["0.0.0.0/0"]
@@ -26,8 +26,8 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    spot = {
-      instance_types = ["r5.large", "r5n.large", "r4.large"]
+    memory_optimized_large = {
+      instance_types = ["r6i.large", "r5.large", "r5a.large", "r5ad.large", "r5b.large", "r5n.large", "r4.large", "z1d.large"]
       capacity_type  = "SPOT"
       max_size       = 3
       min_size       = 1
@@ -37,6 +37,8 @@ module "eks" {
 
   vpc_azs             = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
   vpc_cidr            = "10.0.0.0/16"
-  vpc_private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets_only = true
+  # vpc_private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  vpc_private_subnets = []
   vpc_public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
 }
