@@ -1,0 +1,13 @@
+# https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html
+# - userarn: arn:aws:iam::111122223333:user/admin
+#   username: admin
+#   groups:
+#     - system:masters
+# - userarn: arn:aws:iam::444455556666:user/ops-user
+#   username: ops-user
+#   groups:
+#     - eks-console-dashboard-full-access-group
+# - userarn: arn:aws:iam::444455556666:user/ops-user2
+#   username: ops-user2
+#   groups:
+#     - eks-console-dashboard-restricted-access-group

@@ -46,3 +46,7 @@ module "eks" {
 variable "create" {
   type = bool
 }
+
+output "node_iam_role_arn" {
+  value = module.eks.node_iam_role_arn
+}
