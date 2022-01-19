@@ -54,3 +54,38 @@ variable "public_subnets_only" {
   type    = bool
   default = false
 }
+
+variable "create_node_iam_role" {
+  type    = bool
+  default = true
+}
+
+variable "node_iam_role_path" {
+  type    = string
+  default = null
+}
+
+variable "node_iam_role_description" {
+  type    = string
+  default = null
+}
+
+variable "node_iam_role_permissions_boundary" {
+  type    = string
+  default = null
+}
+
+variable "node_iam_role_additional_policies" {
+  type    = list(string)
+  default = []
+}
+
+variable "node_iam_role_tags" {
+  type    = map(string)
+  default = {}
+}
+
+variable "tags" {
+  type    = map(string)
+  default = {}
+}
