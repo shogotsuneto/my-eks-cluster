@@ -73,6 +73,8 @@ client certificate を使うより便利そう？
 例えば
 
 ```bash
-kubectl get cm -n kube-system aws-auth -ojson | jq '.data.mapRoles' -r >> modules/eks-users/mapRoles
-kubectl -n kube-system create configmap aws-auth --from-file=modules/eks-users/mapRoles --from-file=modules/eks-users/mapUsers --dry-run=client -oyaml
+envsubst < mapRoles.template > mapRolesGenerated # おそらく node 用の iam role arn が必須
+envsubst < mapUsers.template > mapUsersGenerated
+kubectl -n kube-system create configmap aws-auth --from-file=mapRoles=modules/eks-users/mapRolesGenerated --from-file=mapUsers=modules/eks-users/mapUsersGenerated --dry-run=client -oyaml > aws-auth.yaml
+kubectl apply -f aws-auth.yaml
 ```
