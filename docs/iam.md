@@ -14,6 +14,7 @@
 - github actions から web トークン assume role できる
   - 作成済みの Identity Provider を許可
 - 特定の IAM ユーザから assume role できる（kubectl 初期接続用）
+  - （パイプライン上で aws-auth configmap を編集できれば不要かも）
 
 ### trust relationships のテンプレート
 
@@ -68,3 +69,10 @@ https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html
 
 IAM グループは追加できなそうなのがネックだが、どこかでコード化して管理できれば  
 client certificate を使うより便利そう？
+
+例えば
+
+```bash
+kubectl get cm -n kube-system aws-auth -ojson | jq '.data.mapRoles' -r >> modules/eks-users/mapRoles
+kubectl -n kube-system create configmap aws-auth --from-file=modules/eks-users/mapRoles --from-file=modules/eks-users/mapUsers --dry-run=client -oyaml
+```
