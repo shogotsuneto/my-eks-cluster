@@ -118,7 +118,7 @@ jobs:
         run: |
           echo "::set-output name=create::$(terraform-bin output -json | jq -r '.create.value')"
           echo "::set-output name=cluster_id::$(terraform-bin output -json | jq -r '.cluster_id.value')"
-          echo "::set-output name=aws_auth_configmap::$(terraform-bin output -json | jq -r '.aws_auth_configmap.value')"
+          echo "::set-output name=aws_auth_configmap_base64::$(terraform-bin output -json | jq -r '.aws_auth_configmap.value' | base64)"
 
       - name: Setup kubectl
         if: ${{ steps.terraform-outputs.create != 'true' }}
@@ -129,7 +129,7 @@ jobs:
         if: ${{ steps.terraform-outputs.create != 'true' }}
         run: |
           mkdir temp
-          echo ${{ steps.terraform-outputs.outputs.aws_auth_configmap }} | yq e '.data.mapRoles' - > temp/mapRoles
+          echo ${{ steps.terraform-outputs.outputs.aws_auth_configmap_base64 }} | base64 -d | yq e '.data.mapRoles' - > temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPROLES_BASE64 }} | base64 -d >> temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPUSERS_BASE64 }} | base64 -d > temp/mapUsers
 
