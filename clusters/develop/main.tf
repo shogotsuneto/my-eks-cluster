@@ -13,7 +13,7 @@ terraform {
 module "eks" {
   source = "../../modules/eks"
 
-  create                                = true
+  create                                = var.create
   cluster_name                          = "MyFirstCluster"
   cluster_additional_security_group_ids = []
   cluster_endpoint_public_access_cidrs  = ["0.0.0.0/0"]
@@ -41,4 +41,8 @@ module "eks" {
   # vpc_private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   vpc_private_subnets = []
   vpc_public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+}
+
+variable "create" {
+  type = bool
 }
