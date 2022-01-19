@@ -15,14 +15,18 @@ provider "aws" {
 }
 
 locals {
-  region       = "ap-northeast-1"
-  cluster_name = var.cluster_name
+  region = "ap-northeast-1"
+
+  // variables shared among modules
+  cluster_name        = var.cluster_name
+  create              = var.create
+  public_subnets_only = var.public_subnets_only
 }
 
 module "eks" {
   source = "terraform-aws-modules/eks/aws"
 
-  create                                = var.create
+  create                                = local.create
   cluster_name                          = local.cluster_name
   cluster_additional_security_group_ids = var.cluster_additional_security_group_ids
   cluster_endpoint_private_access       = false # default
@@ -30,7 +34,7 @@ module "eks" {
   cluster_endpoint_public_access_cidrs  = var.cluster_endpoint_public_access_cidrs
 
   vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  subnet_ids = local.public_subnets_only ? module.vpc.public_subnets : module.vpc.private_subnets
 
   eks_managed_node_group_defaults = var.eks_managed_node_group_defaults
   eks_managed_node_groups         = var.eks_managed_node_groups
@@ -48,7 +52,7 @@ module "vpc" {
   private_subnets = var.vpc_private_subnets
   public_subnets  = var.vpc_public_subnets
 
-  enable_nat_gateway = var.create
+  enable_nat_gateway = local.create && !local.public_subnets_only
   single_nat_gateway = var.vpc_single_nat_gateway
 
   public_subnet_tags = {
