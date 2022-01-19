@@ -121,12 +121,12 @@ jobs:
           echo "::set-output name=aws_auth_configmap_base64::$(terraform-bin output -json | jq -r '.aws_auth_configmap.value' | base64 -w 0)"
 
       - name: Setup kubectl
-        if: ${{ steps.terraform-outputs.create != 'true' }}
+        if: ${{ steps.terraform-outputs.outputs.create != 'true' }}
         run: |
           aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.outputs.cluster_id}}
 
       - name: Apply aws-auth configmap
-        if: ${{ steps.terraform-outputs.create != 'true' }}
+        if: ${{ steps.terraform-outputs.outputs.create != 'true' }}
         env:
           AWS_AUTH_CONFIGMAP_BASE64: ${{ steps.terraform-outputs.outputs.aws_auth_configmap_base64 }} 
         run: |
