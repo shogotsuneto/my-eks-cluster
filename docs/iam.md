@@ -16,8 +16,6 @@
 
 ### trust relationships のテンプレート
 
-Principal に IAM Group を指定できないようなので、Bootstrap 作業をする人を直接指定するしかなさそう。
-
 ```json
 {
   "Version": "2012-10-17",
