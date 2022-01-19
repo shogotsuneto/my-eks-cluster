@@ -116,9 +116,9 @@ jobs:
       - name: Retrieve Terraform outputs
         id: terraform-outputs
         run: |
-          echo "::set-output name=create::$(terraform-bin output create)"
-          echo "::set-output name=cluster_id::$(terraform-bin output cluster_id)"
-          echo "::set-output name=aws_auth_configmap::$(terraform-bin output aws_auth_configmap)"
+          echo "::set-output name=create::$(terraform-bin output -json | jq -r '.create.value')"
+          echo "::set-output name=cluster_id::$(terraform-bin output -json | jq -r '.cluster_id.value')"
+          echo "::set-output name=aws_auth_configmap::$(terraform-bin output -json | jq -r '.aws_auth_configmap.value')"
 
       - name: Setup kubectl
         if: ${{ steps.terraform-outputs.create != 'true' }}
