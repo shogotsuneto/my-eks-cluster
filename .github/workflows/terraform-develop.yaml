@@ -89,6 +89,7 @@ jobs:
         run: terraform apply -auto-approve
 
   mapUsers:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     name: Map Users
     needs: terraform
     runs-on: ubuntu-latest
@@ -122,13 +123,13 @@ jobs:
       - name: Setup kubectl
         if: ${{ steps.terraform-outputs.create != 'true' }}
         run: |
-          aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.cluster_id}}
+          aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.outputs.cluster_id}}
 
       - name: Apply aws-auth configmap
         if: ${{ steps.terraform-outputs.create != 'true' }}
         run: |
           mkdir temp
-          echo ${{ steps.terraform-outputs.aws_auth_configmap }} | yq e '.data.mapRoles' - > temp/mapRoles
+          echo ${{ steps.terraform-outputs.outputs.aws_auth_configmap }} | yq e '.data.mapRoles' - > temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPROLES_BASE64 }} | base64 -d >> temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPUSERS_BASE64 }} | base64 -d > temp/mapUsers
 
