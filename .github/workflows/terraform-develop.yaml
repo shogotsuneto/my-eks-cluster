@@ -115,24 +115,22 @@ jobs:
       - name: Retrieve Terraform outputs
         id: terraform-outputs
         run: |
+          echo "::set-output name=create::$(terraform output create)"
           echo "::set-output name=cluster_id::$(terraform output cluster_id)"
-          echo "::set-output name=node_iam_role_arn::$(terraform output node_iam_role_arn)"
+          echo "::set-output name=aws_auth_configmap::$(terraform output aws_auth_configmap)"
 
       - name: Setup kubectl
-        if: ${{ steps.terraform-outputs.node_iam_role_arn != '' }}
+        if: ${{ steps.terraform-outputs.create == 'true' }}
         run: |
           aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.cluster_id}}
 
       - name: Apply aws-auth configmap
-        if: ${{ steps.terraform-outputs.node_iam_role_arn != '' }}
-        env:
-          NODE_IAM_ROLE_ARN: ${{ steps.terraform-outputs.node_iam_role_arn }}
+        if: ${{ steps.terraform-outputs.create == 'true' }}
         run: |
           mkdir temp
-          envsubst < ../../modules/eks-users/mapRoles.template > temp/mapRoles
-          envsubst < ../../modules/eks-users/mapUsers.template > temp/mapUsers
+          echo ${{ steps.terraform-outputs.aws_auth_configmap }} | yq e '.data.mapRoles' - > temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPROLES_BASE64 }} | base64 -d >> temp/mapRoles
-          echo ${{ secrets.DEVELOP_MAPUSERS_BASE64 }} | base64 -d >> temp/mapUsers
+          echo ${{ secrets.DEVELOP_MAPUSERS_BASE64 }} | base64 -d > temp/mapUsers
 
           kubectl create -n kube-system configmap aws-auth \
             --from-file=mapRoles=temp/mapRoles \
