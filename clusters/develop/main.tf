@@ -27,7 +27,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     memory_optimized_large = {
-      instance_types = ["r6i.large", "r5.large", "r5a.large", "r5ad.large", "r5b.large", "r5n.large", "r4.large", "z1d.large"]
+      instance_types = ["r5.large", "r5a.large", "r5ad.large", "r5b.large", "r5n.large", "r4.large", "z1d.large"]
       capacity_type  = "SPOT"
       max_size       = 3
       min_size       = 1
