@@ -38,6 +38,7 @@ module "eks" {
       capacity_type  = "SPOT"
       max_size       = 3
       min_size       = 0
+      desired_size   = 1
     }
   }
 

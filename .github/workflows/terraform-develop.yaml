@@ -127,9 +127,11 @@ jobs:
 
       - name: Apply aws-auth configmap
         if: ${{ steps.terraform-outputs.create != 'true' }}
+        env:
+          AWS_AUTH_CONFIGMAP_BASE64: ${{ steps.terraform-outputs.outputs.aws_auth_configmap_base64 }} 
         run: |
           mkdir temp
-          echo ${{ steps.terraform-outputs.outputs.aws_auth_configmap_base64 }} | base64 -d | yq e '.data.mapRoles' - > temp/mapRoles
+          echo $AWS_AUTH_CONFIGMAP_BASE64 | base64 -d | yq e '.data.mapRoles' - > temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPROLES_BASE64 }} | base64 -d >> temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPUSERS_BASE64 }} | base64 -d > temp/mapUsers
 
