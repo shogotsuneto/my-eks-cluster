@@ -3,7 +3,7 @@
 ## パイプライン用の IAM ロール
 
 クラスタ Bootstrap 用。
-依存先が多いのでとりあえずは手動作成で。
+依存先が複数あるのでとりあえずは手動作成で。
 
 ### spec
 
@@ -13,8 +13,6 @@
   - 別に作成済みのポリシーをアタッチ
 - github actions から web トークン assume role できる
   - 作成済みの Identity Provider を許可
-- 特定の IAM ユーザから assume role できる（kubectl 初期接続用）
-  - （パイプライン上で aws-auth configmap を編集できれば不要かも）
 
 ### trust relationships のテンプレート
 
@@ -38,13 +36,6 @@ Principal に IAM Group を指定できないようなので、Bootstrap 作業�
           "token.actions.githubusercontent.com:sub": "repo:${RepoOwner}/${RepoName}:*"
         }
       }
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::${AWS::AccountId}:user/${IAMUserName}"
-      },
-      "Action": "sts:AssumeRole"
     }
   ]
 }
@@ -63,18 +54,5 @@ kubectl get node
 
 ### 追加ユーザ
 
-IAM ユーザ等でアクセスする場合は `aws-auth` という config map を編集する。
-
-https://docs.aws.amazon.com/eks/latest/userguide/add-user-role.html
-
-IAM グループは追加できなそうなのがネックだが、どこかでコード化して管理できれば  
-client certificate を使うより便利そう？
-
-例えば
-
-```bash
-envsubst < mapRoles.template > mapRolesGenerated # おそらく node 用の iam role arn が必須
-envsubst < mapUsers.template > mapUsersGenerated
-kubectl -n kube-system create configmap aws-auth --from-file=mapRoles=modules/eks-users/mapRolesGenerated --from-file=mapUsers=modules/eks-users/mapUsersGenerated --dry-run=client -oyaml > aws-auth.yaml
-kubectl apply -f aws-auth.yaml
-```
+IAM ロール／ユーザでアクセスする場合は `aws-auth` という configmap を編集する。
+このリポジトリではシークレット DEVELOP_MAPUSERS_BASE64 から mapUsers を復元するなどして configmap を生成して apply している。
