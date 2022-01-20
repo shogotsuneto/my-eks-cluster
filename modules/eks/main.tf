@@ -14,8 +14,14 @@ provider "aws" {
   region  = local.region
 }
 
-data "aws_partition" "current" {}
-data "aws_caller_identity" "current" {}
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
+
+  }
+}
 
 locals {
   region = "ap-northeast-1"
@@ -24,42 +30,15 @@ locals {
   cluster_name        = var.cluster_name
   create              = var.create
   public_subnets_only = var.public_subnets_only
-}
 
-module "eks" {
-  source = "terraform-aws-modules/eks/aws"
-
-  create                                = local.create
-  cluster_name                          = local.cluster_name
-  cluster_additional_security_group_ids = var.cluster_additional_security_group_ids
-  cluster_endpoint_private_access       = false # default
-  cluster_endpoint_public_access        = true  # default
-  cluster_endpoint_public_access_cidrs  = var.cluster_endpoint_public_access_cidrs
-
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = local.public_subnets_only ? module.vpc.public_subnets : module.vpc.private_subnets
-
-  eks_managed_node_group_defaults = var.eks_managed_node_group_defaults
-  eks_managed_node_groups         = var.eks_managed_node_groups
-}
-
-module "vpc" {
-  # https://github.com/terraform-aws-modules/terraform-aws-vpc
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3.0"
-
-  name = "${local.cluster_name}-vpc"
-  cidr = var.vpc_cidr
-
-  azs             = var.vpc_azs
-  private_subnets = var.vpc_private_subnets
-  public_subnets  = var.vpc_public_subnets
-
-  enable_nat_gateway = local.create && !local.public_subnets_only
-  single_nat_gateway = var.vpc_single_nat_gateway
-
-  public_subnet_tags = {
-    "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                      = 1
+  tags = {
+    ClusterName = local.cluster_name
   }
+}
+
+data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = var.create ? module.eks.cluster_id : "dummy"
 }

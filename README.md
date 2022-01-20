@@ -38,6 +38,7 @@ EKS クラスターのリソース管理には Terraform,
 - [considered] [Automate Terraform with GitHub Actions](https://learn.hashicorp.com/tutorials/terraform/github-actions)
 - [AWS EKS Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest)
   - [Example (Complete)](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/complete)
+  - [Example (IRSA, Cluster Autoscaler, Instance Refresh)](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/complete)
   - [IAM Permissions](https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/iam-permissions.md)
 - [Cluster Autoscaler](https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/cluster-autoscaler.html)
 - [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)

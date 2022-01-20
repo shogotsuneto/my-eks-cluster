@@ -30,8 +30,8 @@ module "eks" {
       instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
       max_size       = 1
-      min_size       = 1
-      desired_size   = 1
+      min_size       = 0
+      desired_size   = 0
     }
     memory_optimized_large = {
       instance_types = ["r5.large", "r5a.large", "r5ad.large", "r5b.large", "r5n.large", "r4.large", "z1d.large"]
@@ -48,20 +48,4 @@ module "eks" {
   # vpc_private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   vpc_private_subnets = []
   vpc_public_subnets  = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
-}
-
-variable "create" {
-  type = bool
-}
-
-output "create" {
-  value = var.create ? "true" : "false"
-}
-
-output "cluster_id" {
-  value = module.eks.cluster_id
-}
-
-output "aws_auth_configmap" {
-  value = module.eks.aws_auth_configmap
 }
