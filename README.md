@@ -13,6 +13,7 @@ EKS クラスターのリソース管理には Terraform,
 - GitHub Actions 用のシークレット作成（IAM ロール ARN、パーソナルアクセストークン、mapUsers）
 - main に変更を PR&マージして GitHub Actions 起動
 - [kubeconfig 取得](./docs/kubeconfig.md)
+- ArgoCD のアプリケーション／プロジェクト作成
 - 以下 WIP
 
 ## TODO
