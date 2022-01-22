@@ -136,14 +136,18 @@ jobs:
 
       - name: Cluster Autoscaler
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        env:
+          CLUSTER_NAME: ${{ steps.terraform-outputs.outputs.cluster_id }}
+          ROLE_ARN: ${{ steps.terraform-outputs.outputs.autoscaler_role_arn }}
+          SA_NAME: ${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
         run: |
           helm upgrade --install --namespace kube-system cluster-autoscaler autoscaler/cluster-autoscaler \
-            --set 'awsRegion'=ap-northeast-1
-            --set 'autoDiscovery.clusterName'=${{ steps.terraform-outputs.outputs.cluster_id }}
-            --set 'autoDiscovery.enabled'=true
-            --set 'rbac.create'=true
-            --set 'rbac.serviceAccount.name'=${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
-            --set 'rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"'=${{ steps.terraform-outputs.outputs.autoscaler_role_arn }}
+            --set 'awsRegion'=ap-northeast-1 \
+            --set 'autoDiscovery.clusterName'=$CLUSTER_NAME \
+            --set 'autoDiscovery.enabled'=true \
+            --set 'rbac.create'=true \
+            --set 'rbac.serviceAccount.name'=$SA_NAME \
+            --set 'rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"'=$ROLE_ARN
 
       - name: Manifests
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
