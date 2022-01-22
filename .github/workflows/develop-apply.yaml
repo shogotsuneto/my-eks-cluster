@@ -8,13 +8,14 @@ on:
     branches:
       - main
 
+defaults:
+  run:
+    working-directory: clusters/develop
+
 jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: clusters/develop
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -47,9 +48,6 @@ jobs:
     name: Map Users
     needs: terraform
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: clusters/develop
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -95,3 +93,57 @@ jobs:
             --dry-run=client -oyaml > temp/generated-aws-auth.yaml
 
           kubectl apply -f temp/generated-aws-auth.yaml
+
+  helm:
+    name: Apply Helm Charts
+    needs: terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ap-northeast-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Retrieve Terraform outputs
+        id: terraform-outputs
+        run: |
+          echo "::set-output name=create::$(terraform-bin output -json | jq -r '.create.value')"
+          echo "::set-output name=cluster_id::$(terraform-bin output -json | jq -r '.cluster_id.value')"
+          echo "::set-output name=autoscaler_role_arn::$(terraform-bin output -json | jq -r '.autoscaler_role_arn.value')"
+          echo "::set-output name=autoscaler_sa_name::$(terraform-bin output -json | jq -r '.autoscaler_sa_name.value')"
+
+      - name: Setup kubectl
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.outputs.cluster_id}}
+
+      - name: Add Repo
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          helm repo add autoscaler https://kubernetes.github.io/autoscaler
+
+      - name: Install Autoscaler
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        env:
+          CLUSTER_NAME: ${{ steps.terraform-outputs.outputs.cluster_id }}
+          ROLE_ARN: ${{ steps.terraform-outputs.outputs.autoscaler_role_arn }}
+          SA_NAME: ${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
+        run: |
+          helm upgrade --install cluster-autoscaler autoscaler/cluster-autoscaler \
+            --set awsRegion=ap-northeast-1
+            --set autoDiscovery.clusterName=$CLUSTER_NAME
+            --set autoDiscovery.enabled=true
+            --set rbac.create=true
+            --set rbac.serviceAccount.name=$SA_NAME
+            --set rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ROLE_ARN
