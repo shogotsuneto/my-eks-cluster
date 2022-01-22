@@ -1,16 +1,12 @@
 # copied from official tutorial and modified
 # https://github.com/hashicorp/learn-terraform-github-actions/blob/48052f810e751fc890454121843449ccdf8d5b1b/.github/workflows/terraform.yml
 
-name: "Terraform Develop Cluster"
+name: "Develop Apply"
 
 on:
   push:
     branches:
       - main
-  pull_request:
-
-permissions:
-  id-token: write
 
 jobs:
   terraform:
@@ -44,52 +40,10 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-      - name: Terraform Plan
-        id: plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -no-color
-        continue-on-error: true
-
-      - uses: actions/github-script@v5
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.MY_PAT }}
-            # Repo permission will do
-          script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-
-            <details><summary>Show Plan</summary>
-
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
 
   mapUsers:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     name: Map Users
     needs: terraform
     runs-on: ubuntu-latest
