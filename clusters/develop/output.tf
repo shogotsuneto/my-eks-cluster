@@ -9,3 +9,11 @@ output "cluster_id" {
 output "aws_auth_configmap" {
   value = module.eks.aws_auth_configmap
 }
+
+output "autoscaler_role_arn" {
+  value = module.eks.autoscaler_role_arn
+}
+
+output "autoscaler_sa_name" {
+  value = module.eks.autoscaler_sa_name
+}
