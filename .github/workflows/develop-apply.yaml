@@ -8,6 +8,11 @@ on:
     branches:
       - main
 
+permissions:
+  # for configure-aws-credentials
+  id-token: write
+  contents: read
+
 defaults:
   run:
     working-directory: clusters/develop
