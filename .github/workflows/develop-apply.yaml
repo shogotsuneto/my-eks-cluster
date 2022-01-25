@@ -133,10 +133,11 @@ jobs:
         run: |
           aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.outputs.cluster_id}}
           helm repo add autoscaler https://kubernetes.github.io/autoscaler
+          helm repo add istio https://istio-release.storage.googleapis.com/charts
 
       - name: Manifests
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
-        # didn't take a option of committing external manifests into this repo because this is a public repo
+        # didn't take a option of committing external manifests/charts into this repo because this is a public repo
         run: |
           kubectl apply -f manifests/
           # argocd
@@ -159,3 +160,16 @@ jobs:
             --set rbac.serviceAccount.name=$SA_NAME \
             --set rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ROLE_ARN
 
+      - name: Istio
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        # https://istio.io/latest/docs/setup/install/helm/
+        # "This feature is currently considered alpha."
+        run: |
+          helm upgrade --install istio-base istio/base -n istio-system
+          helm upgrade --install istiod istio/istiod -n istio-system --wait
+          helm upgrade --install istio-ingress istio/gateway -n istio-ingress --wait
+
+      - name: Helm list
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          helm list
