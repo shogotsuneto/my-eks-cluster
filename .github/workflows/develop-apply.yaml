@@ -135,11 +135,15 @@ jobs:
           helm repo add autoscaler https://kubernetes.github.io/autoscaler
           helm repo add istio https://istio-release.storage.googleapis.com/charts
 
+      - name: Base Resources
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          kubectl apply -f k8s/base/manifests
+
       - name: Manifests
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         # didn't take a option of committing external manifests/charts into this repo because this is a public repo
         run: |
-          kubectl apply -f manifests/
           # argocd
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/release-2.2/manifests/ha/install.yaml
           # metrics server
@@ -153,9 +157,10 @@ jobs:
           SA_NAME: ${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
         run: |
           helm upgrade --install --namespace kube-system cluster-autoscaler autoscaler/cluster-autoscaler \
+            -f k8s/cluster-autoscaler/values.yaml \
             --set awsRegion=ap-northeast-1 \
-            --set autoDiscovery.clusterName=$CLUSTER_NAME \
             --set autoDiscovery.enabled=true \
+            --set autoDiscovery.clusterName=$CLUSTER_NAME \
             --set rbac.create=true \
             --set rbac.serviceAccount.name=$SA_NAME \
             --set rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ROLE_ARN
@@ -165,9 +170,9 @@ jobs:
         # https://istio.io/latest/docs/setup/install/helm/
         # "This feature is currently considered alpha."
         run: |
-          helm upgrade --install istio-base istio/base -n istio-system
-          helm upgrade --install istiod istio/istiod -n istio-system --wait
-          helm upgrade --install istio-ingress istio/gateway -n istio-ingress --wait
+          helm upgrade --install istio-base istio/base -n istio-system -f k8s/istio/values/base.yaml
+          helm upgrade --install istiod istio/istiod -n istio-system -f k8s/istio/values/istiod.yaml --wait
+          helm upgrade --install istio-ingress istio/gateway -n istio-ingress k8s/istio/values/gateway.yaml --wait
 
       - name: Helm list
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
