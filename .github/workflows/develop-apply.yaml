@@ -159,7 +159,7 @@ jobs:
           SA_NAME: ${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
         run: |
           helm upgrade --install --namespace kube-system cluster-autoscaler autoscaler/cluster-autoscaler \
-            -f k8s/cluster-autoscaler/values.yaml \
+            -f k8s/cluster-autoscaler/values/cluster-autoscaler.yaml \
             --set awsRegion=ap-northeast-1 \
             --set autoDiscovery.enabled=true \
             --set autoDiscovery.clusterName=$CLUSTER_NAME \
@@ -171,7 +171,7 @@ jobs:
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         run: |
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
-            -f k8s/monitoring/values.yaml
+            -f k8s/monitoring/values/monitoring.yaml
 
       - name: Istio
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
