@@ -134,6 +134,8 @@ jobs:
           aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.outputs.cluster_id}}
           helm repo add autoscaler https://kubernetes.github.io/autoscaler
           helm repo add istio https://istio-release.storage.googleapis.com/charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
 
       - name: Base Resources
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
@@ -164,6 +166,12 @@ jobs:
             --set rbac.create=true \
             --set rbac.serviceAccount.name=$SA_NAME \
             --set rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ROLE_ARN
+
+      - name: Monitoring
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
+            -f k8s/monitoring/values.yaml
 
       - name: Istio
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
