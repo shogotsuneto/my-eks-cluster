@@ -210,4 +210,4 @@ jobs:
       - name: Helm list
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         run: |
-          helm list
+          helm list --all-namespaces
