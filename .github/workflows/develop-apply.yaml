@@ -205,9 +205,9 @@ jobs:
         run: |
           helm upgrade --install istio-base istio/base -n istio-system -f k8s/istio/values/base.yaml
           helm upgrade --install istiod istio/istiod -n istio-system -f k8s/istio/values/istiod.yaml --wait
-          helm upgrade --install istio-ingress istio/gateway -n istio-ingress k8s/istio/values/gateway.yaml --wait
+          helm upgrade --install istio-ingress istio/gateway -n istio-ingress -f k8s/istio/values/gateway.yaml --wait
 
       - name: Helm list
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         run: |
-          helm list
+          helm list --all-namespaces
