@@ -1,10 +1,11 @@
 # My EKS Cluster
 
 自分用あんちょこ（Cheat Sheet）的リポジトリ。
-コントロールプレーン寄りの構成管理。
+Monitoring / Service Mesh / GitOps などインフラ寄りの構成管理。
 
-EKS クラスターのリソース管理には Terraform,  
-その他 k8s 内リソース管理には k8s manifest ファイルを利用（予定）。
+EKS クラスターのリソース管理には Terraform,
+その他 k8s 内リソース管理には k8s manifests や helm charts などを利用。
+GitHub Actions 上でインラインで生成等して apply しているものもそこそこある…
 
 ## Bootstrap 手順
 
@@ -45,10 +46,12 @@ EKS クラスターのリソース管理には Terraform,
 - [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
 - Istio
   - [Generate a manifest](https://istio.io/latest/docs/setup/install/istioctl/#generate-a-manifest-before-installation)
-  - [customize installation](https://istio.io/latest/docs/setup/additional-setup/customize-installation/)
+  - [Customize installation](https://istio.io/latest/docs/setup/additional-setup/customize-installation/)
+  - [Alert Configuration](https://prometheus.io/docs/alerting/latest/configuration/)
 - ArgoCD
   - [Get Started](https://argo-cd.readthedocs.io/en/stable/getting_started/)
   - [Declarative Setup](https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/)
+  - [App of Apps pattern](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/)
 - Flux 2
   - [Get Started](https://fluxcd.io/docs/get-started/)
   - [Terraform provider flux](https://github.com/fluxcd/terraform-provider-flux)

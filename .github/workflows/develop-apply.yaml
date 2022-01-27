@@ -73,9 +73,13 @@ jobs:
       - name: Retrieve Terraform outputs
         id: terraform-outputs
         run: |
-          echo "::set-output name=create::$(terraform-bin output -json | jq -r '.create.value')"
-          echo "::set-output name=cluster_id::$(terraform-bin output -json | jq -r '.cluster_id.value')"
-          echo "::set-output name=aws_auth_configmap_base64::$(terraform-bin output -json | jq -r '.aws_auth_configmap.value' | base64 -w 0)"
+          mkdir -p temp
+          terraform-bin output -json > temp/output
+          echo "::set-output name=create::$(cat temp/output | jq -r '.create.value')"
+          echo "::set-output name=cluster_id::$(cat temp/output | jq -r '.cluster_id.value')"
+          echo "::set-output name=alertmanager_role_arn::$(cat temp/output | jq -r '.alertmanager_role_arn.value')"
+          echo "::set-output name=alertmanager_sa_name::$(cat temp/output | jq -r '.alertmanager_sa_name.value')"
+          echo "::set-output name=aws_auth_configmap_base64::$(cat temp/output | jq -r '.aws_auth_configmap.value' | base64 -w 0)"
 
       - name: Setup kubectl
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
@@ -87,8 +91,16 @@ jobs:
         env:
           AWS_AUTH_CONFIGMAP_BASE64: ${{ steps.terraform-outputs.outputs.aws_auth_configmap_base64 }} 
         run: |
-          mkdir temp
+          mkdir -p temp
+          # https://docs.aws.amazon.com/ja_jp/eks/latest/userguide/add-user-role.html
           echo $AWS_AUTH_CONFIGMAP_BASE64 | base64 -d | yq e '.data.mapRoles' - > temp/mapRoles
+
+          # alertmanager role
+          export ROLE_ARN="${{ steps.terraform-outputs.outputs.alertmanager_role_arn }}"
+          export NAMESPACE="monitoring" SERVICEACCOUNT="${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}"
+          envsubst < ../../modules/mapRolesTemplates/serviceaccount.yaml >> temp/mapRoles
+
+          # roles and users from github secrets
           echo ${{ secrets.DEVELOP_MAPROLES_BASE64 }} | base64 -d >> temp/mapRoles
           echo ${{ secrets.DEVELOP_MAPUSERS_BASE64 }} | base64 -d > temp/mapUsers
 
@@ -123,16 +135,37 @@ jobs:
       - name: Retrieve Terraform outputs
         id: terraform-outputs
         run: |
-          echo "::set-output name=create::$(terraform-bin output -json | jq -r '.create.value')"
-          echo "::set-output name=cluster_id::$(terraform-bin output -json | jq -r '.cluster_id.value')"
-          echo "::set-output name=autoscaler_role_arn::$(terraform-bin output -json | jq -r '.autoscaler_role_arn.value')"
-          echo "::set-output name=autoscaler_sa_name::$(terraform-bin output -json | jq -r '.autoscaler_sa_name.value')"
+          mkdir -p temp
+          terraform-bin output -json > temp/output
+          echo "::set-output name=create::$(cat temp/output | jq -r '.create.value')"
+          echo "::set-output name=cluster_id::$(cat temp/output | jq -r '.cluster_id.value')"
+          echo "::set-output name=autoscaler_role_arn::$(cat temp/output | jq -r '.autoscaler_role_arn.value')"
+          echo "::set-output name=autoscaler_sa_name::$(cat temp/output | jq -r '.autoscaler_sa_name.value')"
+          echo "::set-output name=alertmanager_sa_name::$(cat temp/output | jq -r '.alertmanager_sa_name.value')"
+          echo "::set-output name=alertmanager_topic_arn::$(cat temp/output | jq -r '.alertmanager_topic_arn.value')"
 
       - name: Setup kubectl/helm
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         run: |
           aws --region=ap-northeast-1 eks update-kubeconfig --name ${{ steps.terraform-outputs.outputs.cluster_id}}
           helm repo add autoscaler https://kubernetes.github.io/autoscaler
+          helm repo add istio https://istio-release.storage.googleapis.com/charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+      - name: Base Resources
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          kubectl apply -f k8s/base/manifests
+
+      - name: Manifests
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        # didn't take a option of committing external manifests/charts into this repo because this is a public repo
+        run: |
+          # argocd
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/release-2.2/manifests/ha/install.yaml
+          # metrics server
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
       - name: Cluster Autoscaler
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
@@ -142,15 +175,39 @@ jobs:
           SA_NAME: ${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
         run: |
           helm upgrade --install --namespace kube-system cluster-autoscaler autoscaler/cluster-autoscaler \
+            -f k8s/cluster-autoscaler/values/cluster-autoscaler.yaml \
             --set awsRegion=ap-northeast-1 \
-            --set autoDiscovery.clusterName=$CLUSTER_NAME \
             --set autoDiscovery.enabled=true \
+            --set autoDiscovery.clusterName=$CLUSTER_NAME \
             --set rbac.create=true \
             --set rbac.serviceAccount.name=$SA_NAME \
             --set rbac.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=$ROLE_ARN
 
-      - name: Manifests
+      - name: Monitoring
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         run: |
-          kubectl apply -f manifests/
-          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/release-2.2/manifests/ha/install.yaml
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
+            -f k8s/monitoring/values/monitoring.yaml \
+            --set alertmanager.serviceAccount.name=${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}
+
+          mkdir -p temp
+          export TOPIC_ARN="${{ steps.terraform-outputs.outputs.alertmanager_topic_arn }}"
+          envsubst < k8s/monitoring/alertmanager/template.yaml > temp/alertmanager.yaml
+
+          export ALERTMANAGER_NAME="alertmanager-monitoring-kube-prometheus-alertmanager" # the secret needs to have the same name as the alertmanager
+          kubectl -n monitoring delete secret $ALERTMANAGER_NAME
+          kubectl -n monitoring create secret generic --from-file=alertmanager.yaml=temp/alertmanager.yaml $ALERTMANAGER_NAME
+
+      - name: Istio
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        # https://istio.io/latest/docs/setup/install/helm/
+        # "This feature is currently considered alpha."
+        run: |
+          helm upgrade --install istio-base istio/base -n istio-system -f k8s/istio/values/base.yaml
+          helm upgrade --install istiod istio/istiod -n istio-system -f k8s/istio/values/istiod.yaml --wait
+          helm upgrade --install istio-ingress istio/gateway -n istio-ingress k8s/istio/values/gateway.yaml --wait
+
+      - name: Helm list
+        if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
+        run: |
+          helm list

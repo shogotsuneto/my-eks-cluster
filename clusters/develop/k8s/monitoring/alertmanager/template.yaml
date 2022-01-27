@@ -1,0 +1,15 @@
+global: {}
+route:
+  group_by: ["alertname"]
+  group_wait: 5s
+  group_interval: 1m
+  repeat_interval: 10m
+  receiver: "sns"
+
+receivers:
+  - name: "sns"
+    sns_configs:
+      - topic_arn: "${TOPIC_ARN}"
+        send_resolved: true
+        sigv4:
+          region: ap-northeast-1
