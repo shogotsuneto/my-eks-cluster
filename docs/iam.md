@@ -7,12 +7,14 @@
 
 ### spec
 
+- github actions から web トークン assume role できる
+  - 別に作成済みの Identity Provider を許可
 - EKS クラスターに関連するリソースを作成できる
   - 別に作成済みのポリシーをアタッチ
+- SNS topic 作成／削除など
+  - ここでは AWS マネージドの AmazonSNSFullAccess をアタッチ
 - Terraform バックエンドの S3 や DynamoDB へアクセスできる
   - 別に作成済みのポリシーをアタッチ
-- github actions から web トークン assume role できる
-  - 作成済みの Identity Provider を許可
 
 ### trust relationships のテンプレート
 
