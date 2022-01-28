@@ -17,6 +17,11 @@ GitHub Actions 上でインラインで生成等して apply しているもの�
 - ArgoCD のアプリケーション／プロジェクト作成
 - 以下 WIP
 
+## Destroy 手順
+
+- `helm uninstall -n istio-ingress istio-ingress` (loadbalancer の削除)
+- terraform.tfvars にて `create = false` し GitHub Actions を回す
+
 ## TODO
 
 - EKS クラスター
