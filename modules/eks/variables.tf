@@ -2,8 +2,20 @@ variable "create" {
   type    = bool
   default = true
 }
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
+}
+
 variable "cluster_name" {
   type = string
+}
+
+variable "cluster_version" {
+  type    = string
+  default = "1.21"
 }
 
 variable "cluster_additional_security_group_ids" {
