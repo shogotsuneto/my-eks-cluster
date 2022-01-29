@@ -17,7 +17,7 @@ module "eks_managed_node_group" {
 
   vpc_id                 = module.vpc.vpc_id
   subnet_ids             = local.public_subnets_only ? module.vpc.public_subnets : module.vpc.private_subnets
-  vpc_security_group_ids = module.eks.cluster_primary_security_group_id
+  vpc_security_group_ids = [module.eks.cluster_primary_security_group_id]
 
   # most of further configurations are borrowed
   #   from https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/node_groups.tf#L224
