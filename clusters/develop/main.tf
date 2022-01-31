@@ -26,13 +26,6 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    medium = {
-      instance_types = ["t3.medium"]
-      capacity_type  = "ON_DEMAND"
-      max_size       = 1
-      min_size       = 0
-      desired_size   = 0
-    }
     memory_optimized_large = {
       instance_types = ["r5.large", "r5a.large", "r5ad.large", "r5b.large", "r5n.large", "r4.large", "z1d.large"]
       capacity_type  = "SPOT"
