@@ -21,3 +21,7 @@ output "autoscaler_sa_name" {
 output "alertmanager_role_arn" {
   value = module.eks.alertmanager_role_arn
 }
+
+output "alertmanager_sa_name" {
+  value = module.eks.alertmanager_sa_name
+}
