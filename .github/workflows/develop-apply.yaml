@@ -98,7 +98,7 @@ jobs:
           # alertmanager role
           export ROLE_ARN="${{ steps.terraform-outputs.outputs.alertmanager_role_arn }}"
           export NAMESPACE="monitoring" SERVICEACCOUNT="${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}"
-          envsubst < ../../modules/mapRolesTemplates/serviceaccount.yaml >> temp/mapRoles
+          envsubst < ../../modules/eks/templates/mapRoles/serviceaccount.yaml >> temp/mapRoles
 
           # roles and users from github secrets
           echo ${{ secrets.DEVELOP_MAPROLES_BASE64 }} | base64 -d >> temp/mapRoles
