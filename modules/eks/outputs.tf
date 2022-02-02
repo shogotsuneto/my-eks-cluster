@@ -41,14 +41,6 @@ output "map_roles" {
     [for group in module.eks.fargate_profiles : trimspace(templatefile(
       "${path.module}/templates/mapRoles/fargate_profile.tpl.yaml",
       { ROLE_ARN = group.fargate_profile_arn }
-    ))],
-    local.alertmanager_role_arn != "" ? trimspace(templatefile( # alertmanager
-      "${path.module}/templates/mapRoles/serviceaccount.tpl.yaml",
-      {
-        ROLE_ARN       = local.alertmanager_role_arn
-        NAMESPACE      = local.alertmanager_namespace
-        SERVICEACCOUNT = local.alertmanager_sa_name
-      }
-    )) : ""
+    ))]
   ])))
 }
