@@ -93,7 +93,7 @@ jobs:
           MAP_ROLES_BASE64: ${{ steps.terraform-outputs.outputs.map_roles_base64 }} 
         run: |
           mkdir -p temp
-          echo $MAP_ROLES_BASE64 | base64 -d | yq e '.data.mapRoles' - > temp/mapRoles
+          echo $MAP_ROLES_BASE64 | base64 -d > temp/mapRoles
 
           # roles and users from github secrets
           # although I want commit them into this repo, I avoided that just because this is a public repo
