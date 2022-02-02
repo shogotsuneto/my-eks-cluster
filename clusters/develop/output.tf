@@ -25,3 +25,7 @@ output "alertmanager_role_arn" {
 output "alertmanager_sa_name" {
   value = module.eks.alertmanager_sa_name
 }
+
+output "map_roles" {
+  value = module.eks.map_roles
+}
