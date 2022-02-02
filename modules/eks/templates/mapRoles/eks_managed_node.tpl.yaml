@@ -1,4 +1,4 @@
-- rolearn: ${role}
+- rolearn: ${ROLE_ARN}
   username: system:node:{{EC2PrivateDNSName}}
   groups:
     - system:bootstrappers
