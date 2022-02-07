@@ -184,7 +184,8 @@ jobs:
         run: |
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
             -f k8s/monitoring/values/monitoring.yaml \
-            --set alertmanager.serviceAccount.name=${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}
+            --set alertmanager.serviceAccount.name=${{ steps.terraform-outputs.outputs.alertmanager_sa_name }} \
+            --set alertmanager.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=${{ steps.terraform-outputs.outputs.alertmanager_role_arn}}
 
           mkdir -p temp
           export TOPIC_ARN="${{ steps.terraform-outputs.outputs.alertmanager_topic_arn }}"

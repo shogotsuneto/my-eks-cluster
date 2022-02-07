@@ -19,7 +19,7 @@ locals {
 }
 
 output "alertmanager_role_arn" {
-  value = local.alertmanager_role_arn
+  value = module.iam_assumable_role_alertmanager.iam_role_arn
 }
 
 output "alertmanager_sa_name" {
