@@ -26,6 +26,10 @@ output "alertmanager_sa_name" {
   value = local.alertmanager_sa_name
 }
 
+output "alertmanager_publisher_role_arn" {
+  value = aws_iam_role.alertmanager_publisher.arn
+}
+
 output "alertmanager_topic_arn" {
   value = aws_sns_topic.alertmanager.arn
 }

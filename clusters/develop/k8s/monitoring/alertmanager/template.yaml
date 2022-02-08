@@ -13,3 +13,4 @@ receivers:
         send_resolved: true
         sigv4:
           region: ap-northeast-1
+          role_arn: "${ROLE_ARN}"

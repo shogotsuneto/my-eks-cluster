@@ -20,9 +20,18 @@ module "iam_assumable_role_alertmanager" {
   tags = local.tags
 }
 
-resource "aws_iam_policy" "alertmanager_publishable" {
-  name   = "${local.cluster_name}-alertmanager-publishable-policy"
-  policy = data.aws_iam_policy_document.alertmanager_publishable.json
+resource "aws_iam_role" "alertmanager_publisher" {
+  # To publish to Amazon SNS from the alertmanager using iam roles, you need two-step role assumption
+  # 1. create session using the AWS SDK credential chain ("iam_assumable_role_alertmanager" role)
+  # 2. assume the role for publishing (this "alertmanager_publisher" role)
+  # see the implementation: https://github.com/prometheus/alertmanager/blob/main/notify/sns/sns.go#L98
+
+  name               = "${local.cluster_name}_alertmanager_publisher"
+  assume_role_policy = data.aws_iam_policy_document.alertmanager_publisher_assumable.json
+  inline_policy {
+    name   = "alertmanager_publisher_inline_policy"
+    policy = data.aws_iam_policy_document.alertmanager_publishable.json
+  }
 
   tags = local.tags
 }
@@ -34,6 +43,16 @@ data "aws_iam_policy_document" "alertmanager_publishable" {
     resources = [
       aws_sns_topic.alertmanager.arn
     ]
+  }
+}
+
+data "aws_iam_policy_document" "alertmanager_publisher_assumable" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "AWS"
+      identifiers = [module.iam_assumable_role_alertmanager.iam_role_arn]
+    }
   }
 }
 
