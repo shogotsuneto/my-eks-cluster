@@ -19,11 +19,15 @@ locals {
 }
 
 output "alertmanager_role_arn" {
-  value = local.alertmanager_role_arn
+  value = module.iam_assumable_role_alertmanager.iam_role_arn
 }
 
 output "alertmanager_sa_name" {
   value = local.alertmanager_sa_name
+}
+
+output "alertmanager_publisher_role_arn" {
+  value = aws_iam_role.alertmanager_publisher.arn
 }
 
 output "alertmanager_topic_arn" {
