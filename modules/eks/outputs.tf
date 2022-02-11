@@ -23,7 +23,7 @@ output "alertmanager_sa_name" {
 }
 
 output "alertmanager_publisher_role_arn" {
-  value = aws_iam_role.alertmanager_publisher.arn
+  value = var.create ? aws_iam_role.alertmanager_publisher[0].arn : ""
 }
 
 output "alertmanager_topic_arn" {
