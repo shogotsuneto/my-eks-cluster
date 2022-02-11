@@ -26,8 +26,11 @@ resource "aws_iam_role" "alertmanager_publisher" {
   # 2. assume the role for publishing (this "alertmanager_publisher" role)
   # see the implementation: https://github.com/prometheus/alertmanager/blob/main/notify/sns/sns.go#L98
 
-  name               = "${local.cluster_name}_alertmanager_publisher"
-  assume_role_policy = data.aws_iam_policy_document.alertmanager_publisher_assumable.json
+  name = "${local.cluster_name}_alertmanager_publisher"
+  assume_role_policy = var.create ? data.aws_iam_policy_document.alertmanager_publisher_assumable.json : jsonencode({
+    Version   = "2012-10-17"
+    Statement = []
+  })
   inline_policy {
     name   = "alertmanager_publisher_inline_policy"
     policy = data.aws_iam_policy_document.alertmanager_publishable.json
