@@ -13,7 +13,7 @@ module "iam_assumable_role_alertmanager" {
   role_description = "IRSA role for alertmanager"
 
   provider_url                   = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
-  role_policy_arns               = var.create ? [aws_iam_policy.alertmanager_publishable.arn] : []
+  role_policy_arns               = []
   oidc_fully_qualified_subjects  = ["system:serviceaccount:${local.alertmanager_namespace}:${local.alertmanager_sa_name}"]
   oidc_fully_qualified_audiences = ["sts.amazonaws.com"]
 
