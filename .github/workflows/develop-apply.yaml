@@ -137,8 +137,7 @@ jobs:
           echo "::set-output name=autoscaler_sa_name::$(cat temp/output | jq -r '.autoscaler_sa_name.value')"
           echo "::set-output name=alertmanager_role_arn::$(cat temp/output | jq -r '.alertmanager_role_arn.value')"
           echo "::set-output name=alertmanager_sa_name::$(cat temp/output | jq -r '.alertmanager_sa_name.value')"
-          echo "::set-output name=alertmanager_publisher_role_arn::$(cat temp/output | jq -r '.alertmanager_publisher_role_arn.value')"
-          echo "::set-output name=alertmanager_topic_arn::$(cat temp/output | jq -r '.alertmanager_topic_arn.value')"
+          echo "::set-output name=alertmanager_yaml_base64::$(cat temp/output | jq -r '.alertmanager_yaml.value' | base64 -w 0)"
 
       - name: Setup kubectl/helm
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
@@ -182,19 +181,20 @@ jobs:
       - name: Monitoring
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         run: |
-          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
-            -f k8s/monitoring/values/monitoring.yaml \
-            --set alertmanager.serviceAccount.name="${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}" \
-            --set alertmanager.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="${{ steps.terraform-outputs.outputs.alertmanager_role_arn }}"
-
           mkdir -p temp
-          export TOPIC_ARN="${{ steps.terraform-outputs.outputs.alertmanager_topic_arn }}"
-          export ROLE_ARN="${{ steps.terraform-outputs.outputs.alertmanager_publisher_role_arn }}"
-          envsubst < k8s/monitoring/alertmanager/template.yaml > temp/alertmanager.yaml
+
+          # (re)create alertmanager.yaml secret
+          echo ${{ steps.terraform-outputs.outputs.alertmanager_yaml_base64 }} | base64 -d > temp/alertmanager.yaml
 
           export ALERTMANAGER_NAME="alertmanager-monitoring-kube-prometheus-alertmanager" # the secret needs to have the same name as the alertmanager
           kubectl -n monitoring delete secret $ALERTMANAGER_NAME
           kubectl -n monitoring create secret generic --from-file=alertmanager.yaml=temp/alertmanager.yaml $ALERTMANAGER_NAME
+
+          # apply to helm release
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
+            -f k8s/monitoring/values/monitoring.yaml \
+            --set alertmanager.serviceAccount.name="${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}" \
+            --set alertmanager.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="${{ steps.terraform-outputs.outputs.alertmanager_role_arn }}"
 
       - name: Istio
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
