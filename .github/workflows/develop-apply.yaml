@@ -77,8 +77,6 @@ jobs:
           terraform-bin output -json > temp/output
           echo "::set-output name=create::$(cat temp/output | jq -r '.create.value')"
           echo "::set-output name=cluster_id::$(cat temp/output | jq -r '.cluster_id.value')"
-          echo "::set-output name=alertmanager_role_arn::$(cat temp/output | jq -r '.alertmanager_role_arn.value')"
-          echo "::set-output name=alertmanager_sa_name::$(cat temp/output | jq -r '.alertmanager_sa_name.value')"
           echo "::set-output name=map_roles_base64::$(cat temp/output | jq -r '.map_roles.value' | base64 -w 0)"
 
       - name: Setup kubectl
@@ -137,6 +135,7 @@ jobs:
           echo "::set-output name=cluster_id::$(cat temp/output | jq -r '.cluster_id.value')"
           echo "::set-output name=autoscaler_role_arn::$(cat temp/output | jq -r '.autoscaler_role_arn.value')"
           echo "::set-output name=autoscaler_sa_name::$(cat temp/output | jq -r '.autoscaler_sa_name.value')"
+          echo "::set-output name=alertmanager_role_arn::$(cat temp/output | jq -r '.alertmanager_role_arn.value')"
           echo "::set-output name=alertmanager_sa_name::$(cat temp/output | jq -r '.alertmanager_sa_name.value')"
           echo "::set-output name=alertmanager_publisher_role_arn::$(cat temp/output | jq -r '.alertmanager_publisher_role_arn.value')"
           echo "::set-output name=alertmanager_topic_arn::$(cat temp/output | jq -r '.alertmanager_topic_arn.value')"
