@@ -34,6 +34,10 @@ output "alertmanager_topic_arn" {
   value = module.eks.alertmanager_topic_arn
 }
 
+output "alertmanager_yaml" {
+  value = module.eks.alertmanager_yaml
+}
+
 output "map_roles" {
   value = module.eks.map_roles
 }

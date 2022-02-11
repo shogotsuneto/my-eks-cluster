@@ -1,3 +1,9 @@
+locals {
+  # values shared by multiple outputs
+  alertmanager_publisher_role_arn = var.create ? aws_iam_role.alertmanager_publisher[0].arn : ""
+  alertmanager_topic_arn          = aws_sns_topic.alertmanager.arn
+}
+
 output "cluster_id" {
   value = module.eks.cluster_id
 }
@@ -23,11 +29,21 @@ output "alertmanager_sa_name" {
 }
 
 output "alertmanager_publisher_role_arn" {
-  value = var.create ? aws_iam_role.alertmanager_publisher[0].arn : ""
+  value = local.alertmanager_publisher_role_arn
 }
 
 output "alertmanager_topic_arn" {
-  value = aws_sns_topic.alertmanager.arn
+  value = local.alertmanager_topic_arn
+}
+
+output "alertmanager_yaml" {
+  value = trimspace(templatefile(
+    "${path.module}/templates/monitoring/alertmanager.tpl.yaml",
+    {
+      TOPIC_ARN = local.alertmanager_topic_arn
+      ROLE_ARN  = local.alertmanager_publisher_role_arn
+    }
+  ))
 }
 
 output "map_roles" {
