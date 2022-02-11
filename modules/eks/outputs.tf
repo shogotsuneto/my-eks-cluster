@@ -14,10 +14,6 @@ output "autoscaler_sa_name" {
   value = local.autoscaler_sa_name
 }
 
-locals {
-  alertmanager_role_arn = module.iam_assumable_role_alertmanager.iam_role_arn
-}
-
 output "alertmanager_role_arn" {
   value = module.iam_assumable_role_alertmanager.iam_role_arn
 }
