@@ -200,10 +200,11 @@ jobs:
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
         # https://istio.io/latest/docs/setup/install/helm/
         # "This feature is currently considered alpha."
+        # I stopped using `-f` to load custom values because of "alpha"
         run: |
-          helm upgrade --install istio-base istio/base -n istio-system -f k8s/istio/values/base.yaml
-          helm upgrade --install istiod istio/istiod -n istio-system -f k8s/istio/values/istiod.yaml --wait
-          helm upgrade --install istio-ingress istio/gateway -n istio-ingress -f k8s/istio/values/gateway.yaml --wait
+          helm upgrade --install istio-base istio/base -n istio-system
+          helm upgrade --install istiod istio/istiod -n istio-system --wait
+          helm upgrade --install istio-ingress istio/gateway -n istio-ingress --wait
 
       - name: Helm list
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
