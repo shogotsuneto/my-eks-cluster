@@ -170,7 +170,6 @@ jobs:
           SA_NAME: ${{ steps.terraform-outputs.outputs.autoscaler_sa_name }}
         run: |
           helm upgrade --install --namespace kube-system cluster-autoscaler autoscaler/cluster-autoscaler \
-            -f k8s/cluster-autoscaler/values/cluster-autoscaler.yaml \
             --set awsRegion=ap-northeast-1 \
             --set autoDiscovery.enabled=true \
             --set autoDiscovery.clusterName=$CLUSTER_NAME \
@@ -192,7 +191,7 @@ jobs:
 
           # apply to helm release
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -n monitoring \
-            -f k8s/monitoring/values/monitoring.yaml \
+            --set alertmanager.alertmanagerSpec.useExistingSecret=true \
             --set alertmanager.serviceAccount.name="${{ steps.terraform-outputs.outputs.alertmanager_sa_name }}" \
             --set alertmanager.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="${{ steps.terraform-outputs.outputs.alertmanager_role_arn }}"
 
@@ -201,9 +200,9 @@ jobs:
         # https://istio.io/latest/docs/setup/install/helm/
         # "This feature is currently considered alpha."
         run: |
-          helm upgrade --install istio-base istio/base -n istio-system -f k8s/istio/values/base.yaml
-          helm upgrade --install istiod istio/istiod -n istio-system -f k8s/istio/values/istiod.yaml --wait
-          helm upgrade --install istio-ingress istio/gateway -n istio-ingress -f k8s/istio/values/gateway.yaml --wait
+          helm upgrade --install istio-base istio/base -n istio-system
+          helm upgrade --install istiod istio/istiod -n istio-system --wait
+          helm upgrade --install istio-ingress istio/gateway -n istio-ingress --wait
 
       - name: Helm list
         if: ${{ steps.terraform-outputs.outputs.create == 'true' }}
