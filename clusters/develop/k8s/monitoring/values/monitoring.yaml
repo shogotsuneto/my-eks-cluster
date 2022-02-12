@@ -419,7 +419,12 @@ alertmanager:
     ## Secrets is a list of Secrets in the same namespace as the Alertmanager object, which shall be mounted into the
     ## Alertmanager Pods. The Secrets are mounted into /etc/alertmanager/secrets/.
     ##
-    secrets: []
+    secrets:
+      - alertmanager-prometheus-kube-prometheus-alertmanager # modified:
+        # with useExistingSecret true, the alertmanager does not create
+        # but adding this or any secret creates the alertmanager
+        # I'm not sure what's happening under the hood
+        # btw here's the ref: https://github.com/prometheus-community/helm-charts/issues/355#issuecomment-945102598
 
     ## ConfigMaps is a list of ConfigMaps in the same namespace as the Alertmanager object, which shall be mounted into the Alertmanager Pods.
     ## The ConfigMaps are mounted into /etc/alertmanager/configmaps/.
