@@ -187,7 +187,7 @@ jobs:
           echo ${{ steps.terraform-outputs.outputs.alertmanager_yaml_base64 }} | base64 -d > temp/alertmanager.yaml
 
           export ALERTMANAGER_NAME="alertmanager-monitoring-kube-prometheus-alertmanager" # the secret needs to have the same name as the alertmanager
-          kubectl -n monitoring delete secret $ALERTMANAGER_NAME
+          kubectl -n monitoring delete secret $ALERTMANAGER_NAME --ignore-not-found
           kubectl -n monitoring create secret generic --from-file=alertmanager.yaml=temp/alertmanager.yaml $ALERTMANAGER_NAME
 
           # apply to helm release
