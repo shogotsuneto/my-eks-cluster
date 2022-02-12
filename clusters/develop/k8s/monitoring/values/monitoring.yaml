@@ -429,7 +429,7 @@ alertmanager:
     ## ConfigSecret is the name of a Kubernetes Secret in the same namespace as the Alertmanager object, which contains configuration for
     ## this Alertmanager instance. Defaults to 'alertmanager-' The secret is mounted into /etc/alertmanager/config.
     ##
-    configSecret: alertmanager-prometheus-kube-prometheus-alertmanager # modified: test if this can replace -generated mount
+    # configSecret:
 
     ## AlertmanagerConfigs to be selected to merge and configure Alertmanager with.
     ##
