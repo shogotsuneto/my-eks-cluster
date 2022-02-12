@@ -419,8 +419,7 @@ alertmanager:
     ## Secrets is a list of Secrets in the same namespace as the Alertmanager object, which shall be mounted into the
     ## Alertmanager Pods. The Secrets are mounted into /etc/alertmanager/secrets/.
     ##
-    secrets:
-      - alertmanager-prometheus-kube-prometheus-alertmanager # modified: useExistingSecret requires the config secret to be mounted
+    secrets: []
 
     ## ConfigMaps is a list of ConfigMaps in the same namespace as the Alertmanager object, which shall be mounted into the Alertmanager Pods.
     ## The ConfigMaps are mounted into /etc/alertmanager/configmaps/.
@@ -430,7 +429,7 @@ alertmanager:
     ## ConfigSecret is the name of a Kubernetes Secret in the same namespace as the Alertmanager object, which contains configuration for
     ## this Alertmanager instance. Defaults to 'alertmanager-' The secret is mounted into /etc/alertmanager/config.
     ##
-    # configSecret:
+    configSecret: alertmanager-prometheus-kube-prometheus-alertmanager # modified: test if this can replace -generated mount
 
     ## AlertmanagerConfigs to be selected to merge and configure Alertmanager with.
     ##
