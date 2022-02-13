@@ -16,4 +16,6 @@ receivers:
           region: ap-northeast-1
           role_arn: "${ROLE_ARN}"
 
+inhibit_rules: []
+
 templates: []
