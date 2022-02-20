@@ -13,7 +13,7 @@ receivers:
     sns_configs:
       - topic_arn: "${TOPIC_ARN}"
         send_resolved: true
-        subject: "Cluster Alert"
+        subject: "Cluster Alert" # safe and valid for AWS SNS parameter, whereas the default value (template) does not seem to be.
         sigv4:
           region: ap-northeast-1
           role_arn: "${ROLE_ARN}"
