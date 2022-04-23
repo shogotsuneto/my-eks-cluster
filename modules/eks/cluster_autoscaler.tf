@@ -73,7 +73,7 @@ module "iam_assumable_role_cluster_autoscaler" {
 resource "aws_iam_policy" "cluster_autoscaler" {
   count = var.create ? 1 : 0
 
-  name   = "KarpenterControllerPolicy-refresh"
+  name   = "${local.cluster_name}-ClusterAutoscalerPolicy"
   policy = data.aws_iam_policy_document.cluster_autoscaler.json
 
   tags = local.tags
@@ -87,6 +87,7 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
       "autoscaling:DescribeAutoScalingInstances",
       "autoscaling:DescribeLaunchConfigurations",
       "autoscaling:DescribeTags",
+      "ec2:DescribeInstanceTypes",
       "ec2:DescribeLaunchTemplateVersions",
     ]
     resources = ["*"]
