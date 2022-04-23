@@ -36,13 +36,19 @@ GitHub Actions 上でインラインで生成等して apply しているもの�
 - データプレーン用の永続化層（k8s 外の s3, RDS, KeySpaces など）
 - データプレーン用の Git リポジトリ&アプリケーション
 
+## 感想
+
+- SRE と DevOps の責務の違いを実感
+  - とはいえ具体的な対象範囲を厳密に切り分けるのは骨が折れそう
+  - k8s クラスタとモニタリング系はぜひマネージドサービスもしくは SRE に任せたい
+
 ## References
 
 ### building blocks
 
-- [considered] [Terraform Get Started - AWS](https://learn.hashicorp.com/collections/terraform/aws-get-started)
-- [considered] [Terraform s3 Backend](https://www.terraform.io/language/settings/backends/s3)
-- [considered] [Automate Terraform with GitHub Actions](https://learn.hashicorp.com/tutorials/terraform/github-actions)
+- [Terraform Get Started - AWS](https://learn.hashicorp.com/collections/terraform/aws-get-started)
+- [Terraform s3 Backend](https://www.terraform.io/language/settings/backends/s3)
+- [Automate Terraform with GitHub Actions](https://learn.hashicorp.com/tutorials/terraform/github-actions)
 - [AWS EKS Terraform module](https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest)
   - [Example (Complete)](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/complete)
   - [Example (IRSA, Cluster Autoscaler, Instance Refresh)](https://github.com/terraform-aws-modules/terraform-aws-eks/tree/master/examples/complete)

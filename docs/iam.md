@@ -1,6 +1,6 @@
 # IAM
 
-## パイプライン用の IAM ロール
+## パイプライン（GitHub Actions）用の IAM ロール
 
 クラスタ Bootstrap 用。
 依存先が複数あるのでとりあえずは手動作成で。
